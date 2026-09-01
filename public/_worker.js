@@ -1,5 +1,5 @@
 // ============================================================
-//  CF-Terminal —— 类 CFnew 的 Cloudflare Pages/Workers 单文件终端
+//  CF-Terminal —— Cloudflare Pages/Workers 单文件终端
 //  · VLESS-WS / Trojan-WS 双协议（同一入口自动识别）
 //  · Web 图形化管理面板（挂载在 /{UUID 或自定义路径}）
 //  · 配置存 KV，改完立即生效，无需重新部署
