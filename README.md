@@ -1,6 +1,6 @@
 # CF-Terminal — Cloudflare 单文件终端
 
-一个类似 [CFnew](https://github.com/byJoey/cfnew) 的 Cloudflare Pages/Workers 单文件终端项目。
+CF-Terminal 是一个 Cloudflare Pages/Workers 单文件终端项目。
 整站只有一个 `public/_worker.js`，包含代理协议实现、Web 管理面板、订阅生成和 API，配置存 KV，改完立即生效、无需重新部署。
 
 > ✦ 作者：**数码解码** · 开源地址：<https://github.com/smzxtv/cf-terminal>
