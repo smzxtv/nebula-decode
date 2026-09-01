@@ -132,9 +132,9 @@ let r = await worker.fetch(req('GET', '/' + U0), env);
 eq('面板可访问', r.status, 200);
 eq('面板响应头品牌标识', (r.headers.get('x-powered-by') || '').includes('shumajiedu'), true);
 const panelHtml = await r.text();
-eq('面板标题', panelHtml.includes('CF-TERMINAL'), true);
+eq('面板标题', panelHtml.includes('NEBULA-DECODE'), true);
 eq('面板品牌水印(数码解码)', panelHtml.includes('数码解码 出品'), true);
-eq('面板页脚含GitHub链接', panelHtml.includes('github.com/smzxtv/cf-terminal'), true);
+eq('面板页脚含GitHub链接', panelHtml.includes('github.com/smzxtv/nebula-decode'), true);
 
 r = await worker.fetch(req('GET', '/' + U0 + '/api/config'), env);
 eq('GET config 默认 UUID', (await r.json()).uuid, U0);
