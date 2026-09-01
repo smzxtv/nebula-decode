@@ -1,12 +1,12 @@
 // ============================================================
-//  CF-Terminal —— Cloudflare Pages/Workers 单文件终端
+//  NEBULA-DECODE —— Cloudflare Pages/Workers 单文件终端
 //  · VLESS-WS / Trojan-WS 双协议（同一入口自动识别）
 //  · Web 图形化管理面板（挂载在 /{UUID 或自定义路径}）
 //  · 配置存 KV，改完立即生效，无需重新部署
 //  · 订阅生成 + UA 自动识别（base64 / Clash）
 //  · 优选 IP / 域名管理 + REST API
 //  · ProxyIP 回落（直连无响应自动走 ProxyIP）
-//  作者: 数码解码  ·  https://github.com/smzxtv/cf-terminal
+//  作者: 数码解码  ·  https://github.com/smzxtv/nebula-decode
 // ============================================================
 import { connect } from 'cloudflare:sockets';
 
@@ -200,7 +200,7 @@ export default {
       if (rest === '/api/ips') return apiIPs(request, env);
       return camouflage();
     } catch (err) {
-      return new Response('CF-Terminal Error: ' + (err && err.message), {
+      return new Response('NEBULA-DECODE Error: ' + (err && err.message), {
         status: 500,
         headers: { 'content-type': 'text/plain; charset=utf-8' },
       });
@@ -211,7 +211,7 @@ export default {
 // 未匹配路径时的伪装页
 function camouflage() {
   return new Response('<!DOCTYPE html><html><head><meta charset="utf-8"><title>404 Not Found</title></head>' +
-    '<body><center><h1>404 Not Found</h1><hr>nginx</center><!-- 数码解码 · CF-Terminal --></body></html>', {
+    '<body><center><h1>404 Not Found</h1><hr>nginx</center><!-- 数码解码 · NEBULA-DECODE --></body></html>', {
     status: 404,
     headers: { 'content-type': 'text/html; charset=utf-8' },
   });
@@ -246,7 +246,7 @@ async function handleWSTunnel(request, cfg) {
   const server = pair[1];
   server.accept();
 
-  const log = (...args) => console.log('[CF-Terminal]', ...args);
+  const log = (...args) => console.log('[NEBULA-DECODE]', ...args);
 
   let firstPacketDone = false;
   let upstreamWriter = null;      // 远端 TCP / DNS socket 的 writer
@@ -508,7 +508,7 @@ function yamlQuote(s) {
 
 function buildClashYaml(nodes) {
   const lines = [];
-  lines.push('# ═══════ 数码解码 · CF-Terminal Clash 订阅 ═══════');
+  lines.push('# ═══════ 数码解码 · NEBULA-DECODE Clash 订阅 ═══════');
   lines.push('port: 7890');
   lines.push('socks-port: 7891');
   lines.push('allow-lan: false');
@@ -538,11 +538,11 @@ function buildClashYaml(nodes) {
   }
   const names = nodes.map((n) => yamlQuote(n.name));
   lines.push('proxy-groups:');
-  lines.push('  - name: "CF-Terminal"');
+  lines.push('  - name: "NEBULA-DECODE"');
   lines.push('    type: select');
   lines.push(names.length ? `    proxies: [${names.join(', ')}, DIRECT]` : '    proxies: [DIRECT]');
   lines.push('rules:');
-  lines.push('  - MATCH,CF-Terminal');
+  lines.push('  - MATCH,NEBULA-DECODE');
   return lines.join('\n') + '\n';
 }
 
@@ -553,10 +553,10 @@ async function handleSub(request, url, env, cfg) {
   const target = url.searchParams.get('target')
     || (ua.includes('clash') || ua.includes('stash') || ua.includes('mihomo') ? 'clash' : 'base64');
 
-  const headers = { 'content-type': 'text/plain; charset=utf-8', 'x-powered-by': 'shumajiedu | CF-Terminal' };
+  const headers = { 'content-type': 'text/plain; charset=utf-8', 'x-powered-by': 'shumajiedu | NEBULA-DECODE' };
   if (target === 'clash') {
     headers['content-type'] = 'text/yaml; charset=utf-8';
-    headers['content-disposition'] = 'attachment; filename="cf-terminal.yaml"';
+    headers['content-disposition'] = 'attachment; filename="nebula-decode.yaml"';
     return new Response(buildClashYaml(nodes), { headers });
   }
   const text = nodes.map((n) => n.link).join('\n');
@@ -649,7 +649,7 @@ async function renderPanel(url, request, cfg, env) {
   const html = '<!DOCTYPE html>' +
 '<html lang="zh-CN"><head><meta charset="utf-8">' +
 '<meta name="viewport" content="width=device-width,initial-scale=1">' +
-'<title>CF-Terminal 终端</title><style>' +
+'<title>NEBULA-DECODE 终端</title><style>' +
 '*{box-sizing:border-box;margin:0;padding:0}' +
 'body{background:#0a0e14;color:#c9d1d9;font-family:ui-monospace,Consolas,Menlo,monospace;font-size:14px;line-height:1.6;padding:24px}' +
 '.wrap{max-width:860px;margin:0 auto}' +
@@ -680,7 +680,7 @@ async function renderPanel(url, request, cfg, env) {
 '.footer{color:#4a5568;font-size:12px;text-align:center;margin:18px 0 4px}' +
 '.footer a{color:#58e6d9;text-decoration:none}' +
 '</style></head><body><div class="wrap">' +
-'<h1>CF-TERMINAL <span class="v">v1.0</span><span class="brand">数码解码 出品</span></h1>' +
+'<h1>NEBULA-DECODE <span class="v">v1.0</span><span class="brand">数码解码 出品</span></h1>' +
 '<div class="sub">Cloudflare Pages 单文件终端 &nbsp;|&nbsp; 节点机房: <b style="color:#58e6d9">' + colo + '</b> &nbsp;|&nbsp; 入口路径: <b style="color:#58e6d9">' + base + '</b> &nbsp;|&nbsp; ' + protoBadges + '</div>';
 
   const body = html +
@@ -723,9 +723,9 @@ async function renderPanel(url, request, cfg, env) {
 '<code>GET/POST ' + base + '/api/config     读取 / 保存全部配置</code></div>' +
 
 '</div>' +
-'<div class="footer">✦ 由 <b style="color:#f0883e">数码解码</b> 出品 · <a href="https://github.com/smzxtv/cf-terminal" target="_blank">GitHub 开源项目</a> ✦</div>' +
+'<div class="footer">✦ 由 <b style="color:#f0883e">数码解码</b> 出品 · <a href="https://github.com/smzxtv/nebula-decode" target="_blank">GitHub 开源项目</a> ✦</div>' +
 '<script>var BASE="' + base + '/";</script>' + PANEL_TAIL;
-  return new Response(body, { headers: { 'content-type': 'text/html; charset=utf-8', 'x-powered-by': 'shumajiedu | CF-Terminal' } });
+  return new Response(body, { headers: { 'content-type': 'text/html; charset=utf-8', 'x-powered-by': 'shumajiedu | NEBULA-DECODE' } });
 }
 
 const PANEL_TAIL = '<script>' +
