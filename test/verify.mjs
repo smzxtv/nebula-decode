@@ -130,7 +130,11 @@ const req = (method, path, body, headers) =>
 
 let r = await worker.fetch(req('GET', '/' + U0), env);
 eq('面板可访问', r.status, 200);
-eq('面板标题', (await r.text()).includes('CF-TERMINAL'), true);
+eq('面板响应头品牌标识', (r.headers.get('x-powered-by') || '').includes('shumajiedu'), true);
+const panelHtml = await r.text();
+eq('面板标题', panelHtml.includes('CF-TERMINAL'), true);
+eq('面板品牌水印(数码解码)', panelHtml.includes('数码解码 出品'), true);
+eq('面板页脚含GitHub链接', panelHtml.includes('github.com/smzxtv/cf-terminal'), true);
 
 r = await worker.fetch(req('GET', '/' + U0 + '/api/config'), env);
 eq('GET config 默认 UUID', (await r.json()).uuid, U0);
@@ -151,14 +155,19 @@ r = await worker.fetch(req('POST', '/my/nodes/api/ips', JSON.stringify({ text: '
 eq('批量添加 IP 过滤非法项', (await r.json()).ips.join(','), '104.16.1.1,104.16.2.2');
 
 r = await worker.fetch(req('GET', '/my/nodes/sub'), env);
+eq('订阅响应头品牌标识', (r.headers.get('x-powered-by') || '').includes('shumajiedu'), true);
 const subText = Buffer.from(await r.text(), 'base64').toString();
 eq('订阅含 vless 节点', subText.includes('vless://'), true);
 eq('订阅含 trojan 节点', subText.includes('trojan://'), true);
+// base64 订阅正文不能掺广告词(会破坏客户端解析)
+eq('订阅正文无广告词(纯节点)', !subText.includes('数码解码'), true);
 // 4 hosts(域名+优选域名+2IP) x 2 协议
 eq('订阅节点数', subText.split('\n').filter(Boolean).length, 8);
 
 r = await worker.fetch(req('GET', '/my/nodes/sub?target=clash'), env);
-eq('clash 订阅', (await r.text()).includes('type: trojan'), true);
+const yamlText = await r.text();
+eq('clash 订阅', yamlText.includes('type: trojan'), true);
+eq('clash 订阅品牌水印', yamlText.includes('数码解码'), true);
 
 r = await worker.fetch(new Request(origin + '/my/nodes/sub', { headers: { 'user-agent': 'clash-verge/1.0' } }), env);
 eq('UA 自动返回 clash', (await r.text()).includes('proxies:'), true);
