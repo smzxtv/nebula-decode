@@ -6,6 +6,7 @@
 //  · 订阅生成 + UA 自动识别（base64 / Clash）
 //  · 优选 IP / 域名管理 + REST API
 //  · ProxyIP 回落（直连无响应自动走 ProxyIP）
+//  作者: 数码解码  ·  https://github.com/smzxtv/cf-terminal
 // ============================================================
 import { connect } from 'cloudflare:sockets';
 
@@ -210,7 +211,7 @@ export default {
 // 未匹配路径时的伪装页
 function camouflage() {
   return new Response('<!DOCTYPE html><html><head><meta charset="utf-8"><title>404 Not Found</title></head>' +
-    '<body><center><h1>404 Not Found</h1><hr>nginx</center></body></html>', {
+    '<body><center><h1>404 Not Found</h1><hr>nginx</center><!-- 数码解码 · CF-Terminal --></body></html>', {
     status: 404,
     headers: { 'content-type': 'text/html; charset=utf-8' },
   });
@@ -507,7 +508,7 @@ function yamlQuote(s) {
 
 function buildClashYaml(nodes) {
   const lines = [];
-  lines.push('# CF-Terminal Clash 订阅');
+  lines.push('# ═══════ 数码解码 · CF-Terminal Clash 订阅 ═══════');
   lines.push('port: 7890');
   lines.push('socks-port: 7891');
   lines.push('allow-lan: false');
@@ -552,7 +553,7 @@ async function handleSub(request, url, env, cfg) {
   const target = url.searchParams.get('target')
     || (ua.includes('clash') || ua.includes('stash') || ua.includes('mihomo') ? 'clash' : 'base64');
 
-  const headers = { 'content-type': 'text/plain; charset=utf-8' };
+  const headers = { 'content-type': 'text/plain; charset=utf-8', 'x-powered-by': 'shumajiedu | CF-Terminal' };
   if (target === 'clash') {
     headers['content-type'] = 'text/yaml; charset=utf-8';
     headers['content-disposition'] = 'attachment; filename="cf-terminal.yaml"';
@@ -675,8 +676,11 @@ async function renderPanel(url, request, cfg, env) {
 '.row{display:flex;gap:12px;flex-wrap:wrap}.row>div{flex:1;min-width:220px}' +
 '.msg{margin-top:8px;font-size:12px;color:#58e6d9;min-height:18px}' +
 '.hint{color:#4a5568;font-size:12px;margin-top:10px}' +
+'.brand{color:#f0883e;border:1px solid #7d4e1e;border-radius:4px;padding:1px 8px;font-size:12px;margin-left:10px;vertical-align:2px}' +
+'.footer{color:#4a5568;font-size:12px;text-align:center;margin:18px 0 4px}' +
+'.footer a{color:#58e6d9;text-decoration:none}' +
 '</style></head><body><div class="wrap">' +
-'<h1>CF-TERMINAL <span class="v">v1.0</span></h1>' +
+'<h1>CF-TERMINAL <span class="v">v1.0</span><span class="brand">数码解码 出品</span></h1>' +
 '<div class="sub">Cloudflare Pages 单文件终端 &nbsp;|&nbsp; 节点机房: <b style="color:#58e6d9">' + colo + '</b> &nbsp;|&nbsp; 入口路径: <b style="color:#58e6d9">' + base + '</b> &nbsp;|&nbsp; ' + protoBadges + '</div>';
 
   const body = html +
@@ -718,8 +722,10 @@ async function renderPanel(url, request, cfg, env) {
 '<code>DELETE ' + base + '/api/ips?ip=1.2.3.4  删除单个；不带 ip 清空</code>' +
 '<code>GET/POST ' + base + '/api/config     读取 / 保存全部配置</code></div>' +
 
-'</div>' + '<script>var BASE="' + base + '/";</script>' + PANEL_TAIL;
-  return new Response(body, { headers: { 'content-type': 'text/html; charset=utf-8' } });
+'</div>' +
+'<div class="footer">✦ 由 <b style="color:#f0883e">数码解码</b> 出品 · <a href="https://github.com/smzxtv/cf-terminal" target="_blank">GitHub 开源项目</a> ✦</div>' +
+'<script>var BASE="' + base + '/";</script>' + PANEL_TAIL;
+  return new Response(body, { headers: { 'content-type': 'text/html; charset=utf-8', 'x-powered-by': 'shumajiedu | CF-Terminal' } });
 }
 
 const PANEL_TAIL = '<script>' +
