@@ -1,9 +1,9 @@
-# CF-Terminal — Cloudflare 单文件终端
+# Nebula-Decode — Cloudflare 单文件终端
 
-CF-Terminal 是一个 Cloudflare Pages/Workers 单文件终端项目。
+Nebula-Decode 是一个 Cloudflare Pages/Workers 单文件终端项目。
 整站只有一个 `public/_worker.js`，包含代理协议实现、Web 管理面板、订阅生成和 API，配置存 KV，改完立即生效、无需重新部署。
 
-> ✦ 作者：**数码解码** · 开源地址：<https://github.com/smzxtv/cf-terminal>
+> ✦ 作者：**数码解码** · 开源地址：<https://github.com/smzxtv/nebula-decode>
 
 ## 功能
 
@@ -19,7 +19,7 @@ CF-Terminal 是一个 Cloudflare Pages/Workers 单文件终端项目。
 ## 文件结构
 
 ```
-cf-terminal/
+nebula-decode/
 ├── public/
 │   └── _worker.js     # 全部逻辑（单文件）
 ├── test/
@@ -31,7 +31,7 @@ cf-terminal/
 ## 部署方式一：Cloudflare 控制台上传（最简单）
 
 1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com) → **Workers 和 Pages** → **创建** → **Pages** → **直接上传**
-2. 项目名随意（如 `cf-terminal`），把 `cf-terminal/public` 文件夹压缩成 zip 上传
+2. 项目名随意（如 `nebula-decode`），把 `nebula-decode/public` 文件夹压缩成 zip 上传
 3. 部署完成后先访问 `https://项目名.pages.dev/{默认UUID}` 确认面板能打开
 4. **绑定 KV**：项目 → 设置 → 函数 → KV 命名空间绑定 → 变量名填 `KV`，选择一个命名空间（没有就先在 存储/D1/KV 页面创建）
 5. 回到面板修改 UUID / 路径 / 密码并保存（没绑 KV 时保存会报错，面板/订阅仍能用默认值）
@@ -41,7 +41,7 @@ cf-terminal/
 ## 部署方式二：Wrangler CLI
 
 ```bash
-cd cf-terminal
+cd nebula-decode
 
 # 1. 创建 KV 并把输出的 id 填进 wrangler.toml
 npx wrangler kv namespace create KV
