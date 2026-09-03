@@ -306,7 +306,11 @@ async function handleWSTunnel(request, cfg) {
       return;
     }
 
-    await forwardTCP(parsed, setUpstream, pipeRemoteToWS, cfg, log, () => safeCloseWS(server));
+    await forwardTCP(parsed, setUpstream, pipeRemoteToWS, cfg, log, () => {
+      // 临时诊断: 隧道建立但无数据时的关闭路径
+      try { server.send('NEBULA-DEBUG-ONDEAD: 隧道无数据关闭 proto=' + parsed.proto + ' addr=' + parsed.address + ':' + parsed.port + ' proxyIP=' + (cfg.proxyIP || '无')); } catch (e) {}
+      safeCloseWS(server);
+    });
   };
 
   server.addEventListener('message', (event) => {
@@ -682,7 +686,7 @@ async function renderPanel(url, request, cfg, env) {
 '.footer{color:#4a5568;font-size:12px;text-align:center;margin:18px 0 4px}' +
 '.footer a{color:#58e6d9;text-decoration:none}' +
 '</style></head><body><div class="wrap">' +
-'<h1>NEBULA-DECODE <span class="v">v1.0</span><span class="brand">数码解码 出品</span></h1>' +
+'<h1>NEBULA-DECODE <span class="v">v1.0.1-debug</span><span class="brand">数码解码 出品</span></h1>' +
 '<div class="sub">Cloudflare Pages 单文件终端 &nbsp;|&nbsp; 节点机房: <b style="color:#58e6d9">' + colo + '</b> &nbsp;|&nbsp; 入口路径: <b style="color:#58e6d9">' + base + '</b> &nbsp;|&nbsp; ' + protoBadges + '</div>';
 
   const body = html +
