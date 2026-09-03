@@ -685,7 +685,7 @@ async function renderPanel(url, request, cfg, env) {
 
   const body = html +
 '<div class="card"><h2>[ 节点配置 ]</h2>' +
-'<div class="row"><div><label>UUID（VLESS 凭据，也是面板入口路径）</label><input type="text" id="uuid"></div>' +
+'<div class="row"><div><label>UUID（VLESS 凭据，也是面板入口路径）</label><input type="text" id="uuid"><button class="ghost" style="padding:4px 10px;font-size:12px" onclick="genUuid()">🎲 随机生成 UUID</button></div>' +
 '<div><label>自定义路径（可多级，如 my/nodes；留空用 UUID）</label><input type="text" id="path"></div></div>' +
 '<div class="row"><div><label>ProxyIP（直连 CF 站点无响应时回落，如 1.1.1.1 或 bestcf.top）</label><input type="text" id="proxyIP"></div>' +
 '<div><label>Trojan 密码（启用 Trojan 时必填）</label><input type="text" id="trojanPassword"></div></div>' +
@@ -756,6 +756,7 @@ const PANEL_TAIL = '<script>' +
 '  var r=await fetch(BASE+"api/ips",{method:"DELETE"});var c=await r.json();if(c.ok){$("ips").value="";show("msg2","已清空")}' +
 '}' +
 'function copyTo(t,btn){navigator.clipboard.writeText(t).then(function(){btn.textContent="已复制";setTimeout(function(){btn.textContent=btn.textContent.replace("已复制","复制")},1500)})}' +
+'function genUuid(){if(window.crypto&&crypto.randomUUID){$("uuid").value=crypto.randomUUID()}else{var s="0123456789abcdef",u="";for(var j=0;j<36;j++){u+=(j===8||j===12||j===16||j===20)?"-":(j===14)?"4":s.charAt(Math.floor(Math.random()*16))}$("uuid").value=u}}' +
 'loadCfg();' +
 '<\/script></body></html>';
 
