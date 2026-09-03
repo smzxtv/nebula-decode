@@ -315,6 +315,8 @@ async function handleWSTunnel(request, cfg) {
         firstPacketDone = true;
         processFirst(event.data).catch((err) => {
           log('handshake error:', err && err.message);
+          // 临时诊断: 把真实错误发回客户端便于排查
+          try { server.send('NEBULA-DEBUG: ' + (err && err.message) + ' | data type=' + (typeof event.data) + ' len=' + (event.data && event.data.byteLength !== undefined ? event.data.byteLength : event.data.length)); } catch (e) {}
           safeCloseWS(server);
         });
         return;
