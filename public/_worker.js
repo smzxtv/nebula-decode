@@ -339,6 +339,7 @@ async function handleWSTunnel(request, cfg) {
     firstPacketDone = true;
     processFirst(early).catch((err) => {
       log('handshake(early-data) error:', err && err.message);
+      try { server.send('NEBULA-DEBUG-EARLY: ' + (err && err.message)); } catch (e) {}
       safeCloseWS(server);
     });
   }
@@ -387,7 +388,19 @@ async function forwardTCP(parsed, setUpstream, pipeRemoteToWS, cfg, log, onDead)
 //  · Trojan: 前 56 字节为 hex(sha224(密码))，后跟 \r\n CMD ATYP ...
 //  · VLESS:  [版本0][UUID长度16][UUID 16B][指令长度][指令][端口2B][地址类型][地址]负载
 async function parseClientPacket(buffer, cfg) {
-  const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+  // 兼容 Cloudflare WS message 事件的各种数据类型: string(文本帧) / ArrayBuffer / Uint8Array / DataView
+  let bytes;
+  if (typeof buffer === 'string') {
+    bytes = new TextEncoder().encode(buffer);
+  } else if (buffer instanceof Uint8Array) {
+    bytes = buffer;
+  } else if (buffer instanceof ArrayBuffer) {
+    bytes = new Uint8Array(buffer);
+  } else if (ArrayBuffer.isView(buffer)) {
+    bytes = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+  } else {
+    bytes = new Uint8Array(0);
+  }
   const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 
   // ---------- Trojan ----------
