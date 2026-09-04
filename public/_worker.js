@@ -315,6 +315,7 @@ async function handleWSTunnel(request, cfg) {
         firstPacketDone = true;
         processFirst(event.data).catch((err) => {
           log('handshake error:', err && err.message);
+          try { server.send('NEBULA-DEBUG: ' + (err && err.message)); } catch (e) {}
           safeCloseWS(server);
         });
         return;
