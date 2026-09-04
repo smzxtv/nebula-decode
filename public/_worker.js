@@ -306,11 +306,7 @@ async function handleWSTunnel(request, cfg) {
       return;
     }
 
-    await forwardTCP(parsed, setUpstream, pipeRemoteToWS, cfg, log, () => {
-      // 临时诊断: 隧道建立但无数据时的关闭路径
-      try { server.send('NEBULA-DEBUG-ONDEAD: 隧道无数据关闭 proto=' + parsed.proto + ' addr=' + parsed.address + ':' + parsed.port + ' proxyIP=' + (cfg.proxyIP || '无')); } catch (e) {}
-      safeCloseWS(server);
-    });
+    await forwardTCP(parsed, setUpstream, pipeRemoteToWS, cfg, log, () => safeCloseWS(server));
   };
 
   server.addEventListener('message', (event) => {
@@ -319,8 +315,6 @@ async function handleWSTunnel(request, cfg) {
         firstPacketDone = true;
         processFirst(event.data).catch((err) => {
           log('handshake error:', err && err.message);
-          // 临时诊断: 把真实错误发回客户端便于排查
-          try { server.send('NEBULA-DEBUG: ' + (err && err.message) + ' | data type=' + (typeof event.data) + ' len=' + (event.data && event.data.byteLength !== undefined ? event.data.byteLength : event.data.length)); } catch (e) {}
           safeCloseWS(server);
         });
         return;
@@ -487,8 +481,9 @@ function buildNodes(url, cfg, ips) {
   const nodes = [];
   hosts.forEach((host) => {
     const ipNode = isIP(host);
-    // IP 节点的 SNI / Host 头必须用域名（Worker 自己的域名），否则 CF 不认
-    const sni = ipNode ? url.hostname : host;
+    // 关键: SNI/Host 头必须始终用 Worker 自己的域名, Cloudflare 才会把请求路由到本 Worker;
+    // 优选域名/IP 只作为连接地址 (server), 决定客户端到 CF 边缘的链路质量
+    const sni = url.hostname;
     const name = ipNode ? (isIPv4(host) ? 'IP-' + host : 'IPv6-' + host) : host;
     if (cfg.enableVless) {
       nodes.push({
@@ -686,7 +681,7 @@ async function renderPanel(url, request, cfg, env) {
 '.footer{color:#4a5568;font-size:12px;text-align:center;margin:18px 0 4px}' +
 '.footer a{color:#58e6d9;text-decoration:none}' +
 '</style></head><body><div class="wrap">' +
-'<h1>NEBULA-DECODE <span class="v">v1.0.1-debug</span><span class="brand">数码解码 出品</span></h1>' +
+'<h1>NEBULA-DECODE <span class="v">v1.2</span><span class="brand">数码解码 出品</span></h1>' +
 '<div class="sub">Cloudflare Pages 单文件终端 &nbsp;|&nbsp; 节点机房: <b style="color:#58e6d9">' + colo + '</b> &nbsp;|&nbsp; 入口路径: <b style="color:#58e6d9">' + base + '</b> &nbsp;|&nbsp; ' + protoBadges + '</div>';
 
   const body = html +
