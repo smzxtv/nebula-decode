@@ -310,22 +310,38 @@ async function handleWSTunnel(request, cfg) {
   };
 
   server.addEventListener('message', (event) => {
-    try {
-      if (!firstPacketDone) {
-        firstPacketDone = true;
-        processFirst(event.data).catch((err) => {
-          log('handshake error:', err && err.message);
-          try { server.send('NEBULA-DEBUG: ' + (err && err.message)); } catch (e) {}
-          safeCloseWS(server);
-        });
-        return;
-      }
-      if (upstreamWriter) {
-        upstreamWriter.write(event.data).catch(() => {});
-      } else {
-        pendingWrites.push(event.data);
-      }
-    } catch (e) { /* ignore */ }
+    (async () => {
+      try {
+        // 统一把 event.data 转成 Uint8Array, 兼容 Blob(异步) / ArrayBuffer / Uint8Array / string / DataView
+        let buf = event.data;
+        if (buf instanceof Blob) buf = await buf.arrayBuffer();
+        else if (typeof buf === 'string') buf = new TextEncoder().encode(buf);
+        if (buf instanceof ArrayBuffer) buf = new Uint8Array(buf);
+        else if (ArrayBuffer.isView(buf)) buf = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
+        if (!(buf instanceof Uint8Array)) buf = new Uint8Array(0);
+
+        if (!firstPacketDone) {
+          firstPacketDone = true;
+          processFirst(buf).catch((err) => {
+            log('handshake error:', err && err.message);
+            // 诊断探针: 输出真实错误 + 线上收到的数据类型/长度/前16字节
+            try {
+              server.send('NEBULA-DEBUG: ' + (err && err.message)
+                + ' | type=' + (event.data && event.data.constructor ? event.data.constructor.name : typeof event.data)
+                + ' len=' + (buf ? buf.length : 0)
+                + ' first8=' + Array.from(buf.slice(0, 8)).join(','));
+            } catch (e) {}
+            safeCloseWS(server);
+          });
+          return;
+        }
+        if (upstreamWriter) {
+          upstreamWriter.write(buf).catch(() => {});
+        } else {
+          pendingWrites.push(buf);
+        }
+      } catch (e) { /* ignore */ }
+    })();
   });
 
   server.addEventListener('close', () => {
@@ -695,7 +711,7 @@ async function renderPanel(url, request, cfg, env) {
 '.footer{color:#4a5568;font-size:12px;text-align:center;margin:18px 0 4px}' +
 '.footer a{color:#58e6d9;text-decoration:none}' +
 '</style></head><body><div class="wrap">' +
-'<h1>NEBULA-DECODE <span class="v">v1.2.1-probe</span><span class="brand">数码解码 出品</span></h1>' +
+'<h1>NEBULA-DECODE <span class="v">v1.2.2-probe</span><span class="brand">数码解码 出品</span></h1>' +
 '<div class="sub">Cloudflare Pages 单文件终端 &nbsp;|&nbsp; 节点机房: <b style="color:#58e6d9">' + colo + '</b> &nbsp;|&nbsp; 入口路径: <b style="color:#58e6d9">' + base + '</b> &nbsp;|&nbsp; ' + protoBadges + '</div>';
 
   const body = html +
