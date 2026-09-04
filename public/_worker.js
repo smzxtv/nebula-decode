@@ -682,7 +682,7 @@ async function renderPanel(url, request, cfg, env) {
 '.footer{color:#4a5568;font-size:12px;text-align:center;margin:18px 0 4px}' +
 '.footer a{color:#58e6d9;text-decoration:none}' +
 '</style></head><body><div class="wrap">' +
-'<h1>NEBULA-DECODE <span class="v">v1.2</span><span class="brand">数码解码 出品</span></h1>' +
+'<h1>NEBULA-DECODE <span class="v">v1.2.1-probe</span><span class="brand">数码解码 出品</span></h1>' +
 '<div class="sub">Cloudflare Pages 单文件终端 &nbsp;|&nbsp; 节点机房: <b style="color:#58e6d9">' + colo + '</b> &nbsp;|&nbsp; 入口路径: <b style="color:#58e6d9">' + base + '</b> &nbsp;|&nbsp; ' + protoBadges + '</div>';
 
   const body = html +
